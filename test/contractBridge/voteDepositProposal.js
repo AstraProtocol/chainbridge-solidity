@@ -19,9 +19,6 @@ contract('Bridge - [voteProposal with relayerThreshold == 3]', async (accounts) 
     const relayer2Address = accounts[1];
     const relayer3Address = accounts[2];
     const relayer4Address = accounts[3];
-    const relayer1Bit = 1 << 0;
-    const relayer2Bit = 1 << 1;
-    const relayer3Bit = 1 << 2;
     const depositerAddress = accounts[4];
     const destinationChainRecipientAddress = accounts[4];
     const depositAmount = 10;
@@ -97,7 +94,6 @@ contract('Bridge - [voteProposal with relayerThreshold == 3]', async (accounts) 
         await TruffleAssert.passes(vote(relayer1Address));
 
         const expectedDepositProposal = {
-            _yesVotes: relayer1Bit.toString(),
             _yesVotesTotal: '1',
             _status: '1' // Active
         };
@@ -157,7 +153,6 @@ contract('Bridge - [voteProposal with relayerThreshold == 3]', async (accounts) 
         const depositProposalAfterFirstVote = await BridgeInstance.getProposal(
             originDomainID, expectedDepositNonce, depositDataHash);
         assert.equal(depositProposalAfterFirstVote._yesVotesTotal, 1);
-        assert.equal(depositProposalAfterFirstVote._yesVotes, relayer1Bit);
         assert.strictEqual(depositProposalAfterFirstVote._status, STATUS.Active);
 
         await TruffleAssert.passes(vote(relayer2Address));
@@ -165,7 +160,6 @@ contract('Bridge - [voteProposal with relayerThreshold == 3]', async (accounts) 
         const depositProposalAfterSecondVote = await BridgeInstance.getProposal(
             originDomainID, expectedDepositNonce, depositDataHash);
         assert.equal(depositProposalAfterSecondVote._yesVotesTotal, 2);
-        assert.equal(depositProposalAfterSecondVote._yesVotes, relayer1Bit + relayer2Bit);
         assert.strictEqual(depositProposalAfterSecondVote._status, STATUS.Active);
 
         await TruffleAssert.passes(vote(relayer3Address)); // After this vote, automatically executes the proposal.
@@ -173,7 +167,6 @@ contract('Bridge - [voteProposal with relayerThreshold == 3]', async (accounts) 
         const depositProposalAfterThirdVote = await BridgeInstance.getProposal(
             originDomainID, expectedDepositNonce, depositDataHash);
         assert.equal(depositProposalAfterThirdVote._yesVotesTotal, 3);
-        assert.equal(depositProposalAfterThirdVote._yesVotes, relayer1Bit + relayer2Bit + relayer3Bit);
         assert.strictEqual(depositProposalAfterThirdVote._status, STATUS.Executed); // Executed
     });
 

@@ -91,10 +91,9 @@ contract('ERC721Handler - [Deposit Burn ERC721]', async (accounts) => {
     });
     it('depositAmount of ERC721MintableInstance1 tokens should NOT burn from NOT token owner', async () => {
         await TruffleAssert.reverts(BridgeInstance.deposit(
-                destinationDomainID,
+                domainID,
                 resourceID1,
                 depositData,
-                feeData,
                 { from: accounts[3] }
             ),
             'Burn not from owner');

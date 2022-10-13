@@ -95,7 +95,6 @@ contract('Bridge - [create a deposit proposal (voteProposal) with relayerThresho
 
     it('depositProposal should be created with expected values', async () => {
         const expectedDepositProposal = {
-            _yesVotes: originChainRelayerBit.toString(),
             _yesVotesTotal: '1',
             _status: '2' // passed
         };
@@ -224,7 +223,6 @@ contract('Bridge - [create a deposit proposal (voteProposal) with relayerThresho
 
     it('depositProposal should be created with expected values', async () => {
         const expectedDepositProposal = {
-            _yesVotes: originChainRelayerBit.toString(),
             _yesVotesTotal: '1',
             _status: '1' // active
         };
