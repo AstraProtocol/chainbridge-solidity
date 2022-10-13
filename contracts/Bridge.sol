@@ -103,10 +103,6 @@ contract Bridge is Pausable, AccessControl, SafeMath {
         require(hasRole(RELAYER_ROLE, _msgSender()), "sender doesn't have relayer role");
     }
 
-    function _relayerBit(address relayer) private view returns(uint) {
-        return uint(1) << sub(AccessControl.getRoleMemberIndex(RELAYER_ROLE, relayer), 1);
-    }
-
     function _hasVoted(uint72 nonceAndID, bytes32 dataHash, address relayer) private view returns(bool) {
         Proposal memory proposal = _proposals[nonceAndID][dataHash];
         bool voted = _proposalVotes[nonceAndID][dataHash][relayer];
