@@ -19,9 +19,6 @@ contract('Bridge - [voteProposal with relayerThreshold == 3]', async (accounts) 
     const relayer2Address = accounts[1];
     const relayer3Address = accounts[2];
     const relayer4Address = accounts[3];
-    const relayer1Bit = 1 << 0;
-    const relayer2Bit = 1 << 1;
-    const relayer3Bit = 1 << 2;
     const destinationChainRecipientAddress = accounts[4];
     const depositAmount = 10;
     const expectedDepositNonce = 1;
@@ -81,7 +78,6 @@ contract('Bridge - [voteProposal with relayerThreshold == 3]', async (accounts) 
         await TruffleAssert.passes(vote(relayer1Address));
 
         const expectedDepositProposal = {
-            _yesVotes: relayer1Bit.toString(),
             _yesVotesTotal: '1',
             _status: '1' // Active
         };
@@ -105,7 +101,6 @@ contract('Bridge - [voteProposal with relayerThreshold == 3]', async (accounts) 
         await TruffleAssert.passes(vote(relayer2Address));
         
         const expectedDepositProposal = {
-            _yesVotes: relayer1Bit.toString(),
             _yesVotesTotal: '1',
             _status: '4' // Cancelled
         };
@@ -124,7 +119,6 @@ contract('Bridge - [voteProposal with relayerThreshold == 3]', async (accounts) 
         }
 
         const expectedDepositProposal = {
-            _yesVotes: relayer2Bit.toString(),
             _yesVotesTotal: '1',
             _status: '4' // Cancelled
         };
@@ -149,7 +143,6 @@ contract('Bridge - [voteProposal with relayerThreshold == 3]', async (accounts) 
         }
 
         const expectedDepositProposal = {
-            _yesVotes: relayer3Bit.toString(),
             _yesVotesTotal: '1',
             _status: '4' // Cancelled
         };

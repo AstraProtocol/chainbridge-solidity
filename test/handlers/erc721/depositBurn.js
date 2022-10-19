@@ -89,4 +89,13 @@ contract('ERC721Handler - [Deposit Burn ERC721]', async (accounts) => {
             ERC721MintableInstance1.ownerOf(tokenID),
             'ERC721: owner query for nonexistent token');
     });
+    it('depositAmount of ERC721MintableInstance1 tokens should NOT burn from NOT token owner', async () => {
+        await TruffleAssert.reverts(BridgeInstance.deposit(
+                domainID,
+                resourceID1,
+                depositData,
+                { from: accounts[3] }
+            ),
+            'Burn not from owner');
+    });
 });

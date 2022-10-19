@@ -26,9 +26,6 @@ contract('Bridge - [voteProposal through forwarder]', async (accounts) => {
     const relayer2Address = relayer2.getAddressString();
     const relayer3Address = relayer3.getAddressString();
     const relayer4Address = relayer4.getAddressString();
-    const relayer1Bit = 1 << 0;
-    const relayer2Bit = 1 << 1;
-    const relayer3Bit = 1 << 2;
     const depositer = Wallet.generate();
     const depositerAddress = depositer.getAddressString();
     const destinationChainRecipientAddress = accounts[4];
@@ -166,7 +163,6 @@ contract('Bridge - [voteProposal through forwarder]', async (accounts) => {
 
         await ForwarderInstance.execute(request, sign);
         const expectedDepositProposal = {
-            _yesVotes: relayer1Bit.toString(),
             _yesVotesTotal: '1',
             _status: '1' // Active
         };
@@ -271,7 +267,6 @@ contract('Bridge - [voteProposal through forwarder]', async (accounts) => {
         await ForwarderInstance.execute(request, sign);
 
         const expectedDepositProposal = {
-            _yesVotes: '0',
             _yesVotesTotal: '0',
             _status: '0'
         };

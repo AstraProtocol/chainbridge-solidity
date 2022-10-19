@@ -29,7 +29,6 @@ contract Bridge is Pausable, AccessControl, SafeMath {
 
     struct Proposal {
         ProposalStatus _status;
-        uint200 _yesVotes;      // bitmap, 200 maximum votes
         uint8   _yesVotesTotal;
         uint40  _proposedBlock; // 1099511627775 maximum block
     }
@@ -42,6 +41,9 @@ contract Bridge is Pausable, AccessControl, SafeMath {
     mapping(address => bool) public isValidForwarder;
     // destinationDomainID + depositNonce => dataHash => Proposal
     mapping(uint72 => mapping(bytes32 => Proposal)) private _proposals;
+
+    // destinationDomainID + depositNonce => dataHash => relayerAddress => isVoted
+    mapping(uint72 => mapping(bytes32 => mapping(address => bool))) private _proposalVotes;
 
     event RelayerThresholdChanged(uint256 newThreshold);
     event RelayerAdded(address relayer);
@@ -101,12 +103,10 @@ contract Bridge is Pausable, AccessControl, SafeMath {
         require(hasRole(RELAYER_ROLE, _msgSender()), "sender doesn't have relayer role");
     }
 
-    function _relayerBit(address relayer) private view returns(uint) {
-        return uint(1) << sub(AccessControl.getRoleMemberIndex(RELAYER_ROLE, relayer), 1);
-    }
-
-    function _hasVoted(Proposal memory proposal, address relayer) private view returns(bool) {
-        return (_relayerBit(relayer) & uint(proposal._yesVotes)) > 0;
+    function _hasVoted(uint72 nonceAndID, bytes32 dataHash, address relayer) private view returns(bool) {
+        Proposal memory proposal = _proposals[nonceAndID][dataHash];
+        bool voted = _proposalVotes[nonceAndID][dataHash][relayer];
+        return voted && proposal._proposedBlock > 0;
     }
 
     function _msgSender() internal override view returns (address) {
@@ -147,7 +147,7 @@ contract Bridge is Pausable, AccessControl, SafeMath {
         @param relayer Address to check.
      */
     function _hasVotedOnProposal(uint72 destNonce, bytes32 dataHash, address relayer) public view returns(bool) {
-        return _hasVoted(_proposals[destNonce][dataHash], relayer);
+        return _hasVoted(destNonce, dataHash, relayer);
     }
 
     /**
@@ -298,7 +298,6 @@ contract Bridge is Pausable, AccessControl, SafeMath {
         @param dataHash Hash of data to be provided when deposit proposal is executed.
         @return Proposal which consists of:
         - _dataHash Hash of data to be provided when deposit proposal is executed.
-        - _yesVotes Number of votes in favor of proposal.
         - _noVotes Number of votes against proposal.
         - _status Current status of proposal.
      */
@@ -391,12 +390,11 @@ contract Bridge is Pausable, AccessControl, SafeMath {
         address sender = _msgSender();
         
         require(uint(proposal._status) <= 1, "proposal already executed/cancelled");
-        require(!_hasVoted(proposal, sender), "relayer already voted");
+        require(!_hasVoted(nonceAndID, dataHash, sender), "relayer already voted");
 
         if (proposal._status == ProposalStatus.Inactive) {
             proposal = Proposal({
                 _status : ProposalStatus.Active,
-                _yesVotes : 0,
                 _yesVotesTotal : 0,
                 _proposedBlock : uint40(block.number) // Overflow is desired.
             });
@@ -411,7 +409,7 @@ contract Bridge is Pausable, AccessControl, SafeMath {
         }
 
         if (proposal._status != ProposalStatus.Cancelled) {
-            proposal._yesVotes = (proposal._yesVotes | _relayerBit(sender)).toUint200();
+            _proposalVotes[nonceAndID][dataHash][sender] = true;
             proposal._yesVotesTotal++; // TODO: check if bit counting is cheaper.
 
             emit ProposalVote(domainID, depositNonce, proposal._status, dataHash);
