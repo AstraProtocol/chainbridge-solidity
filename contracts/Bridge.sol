@@ -238,6 +238,29 @@ contract Bridge is Pausable, AccessControl, SafeMath {
     }
 
     /**
+        @notice Grants {retrierAddress} the retrier role.
+        @notice Only callable by an address that currently has the admin role, which is
+                checked in grantRole().
+        @param retrierAddress Address of retrier to be added.
+     */
+    function adminAddRetrier(address retrierAddress) external {
+        require(!hasRole(RETRIER_ROLE, retrierAddress), "addr already is retrier role!");
+        require(AccessControl.getRoleMemberCount(RETRIER_ROLE) < 2, "retrier limit reached");
+        grantRole(RETRIER_ROLE, retrierAddress);
+    }
+
+    /**
+        @notice Removes retrier role for {retrierAddress}.
+        @notice Only callable by an address that currently has the admin role, which is
+                checked in revokeRole().
+        @param retrierAddress Address of retrier to be removed.
+     */
+    function adminRemoveRetrier(address retrierAddress) external {
+        require(hasRole(RETRIER_ROLE, retrierAddress), "addr doesn't have retrier role!");
+        revokeRole(RETRIER_ROLE, retrierAddress);
+    }
+
+    /**
         @notice Sets a new resource for handler contracts that use the IERCHandler interface,
         and maps the {handlerAddress} to {resourceID} in {_resourceIDToHandlerAddress}.
         @notice Only callable by an address that currently has the admin role.
