@@ -71,8 +71,12 @@ contract Bridge is Pausable, AccessControl, SafeMath {
     event FailedHandlerExecution(
         bytes lowLevelData
     );
+    event Retry(
+        string txHash
+    );
 
     bytes32 public constant RELAYER_ROLE = keccak256("RELAYER_ROLE");
+    bytes32 public constant RETRIER_ROLE = keccak256("RETRIER_ROLE");
 
     modifier onlyAdmin() {
         _onlyAdmin();
@@ -89,6 +93,11 @@ contract Bridge is Pausable, AccessControl, SafeMath {
         _;
     }
 
+    modifier onlyRetrier() {
+        _onlyRetrier();
+        _;
+    }
+
     function _onlyAdminOrRelayer() private view {
         address sender = _msgSender();
         require(hasRole(DEFAULT_ADMIN_ROLE, sender) || hasRole(RELAYER_ROLE, sender),
@@ -101,6 +110,10 @@ contract Bridge is Pausable, AccessControl, SafeMath {
 
     function _onlyRelayers() private view {
         require(hasRole(RELAYER_ROLE, _msgSender()), "sender doesn't have relayer role");
+    }
+
+    function _onlyRetrier() private view {
+        require(hasRole(RETRIER_ROLE, _msgSender()), "sender doesn't have retrier role");
     }
 
     function _hasVoted(uint72 nonceAndID, bytes32 dataHash, address relayer) private view returns(bool) {
@@ -222,6 +235,29 @@ contract Bridge is Pausable, AccessControl, SafeMath {
         require(hasRole(RELAYER_ROLE, relayerAddress), "addr doesn't have relayer role!");
         revokeRole(RELAYER_ROLE, relayerAddress);
         emit RelayerRemoved(relayerAddress);
+    }
+
+    /**
+        @notice Grants {retrierAddress} the retrier role.
+        @notice Only callable by an address that currently has the admin role, which is
+                checked in grantRole().
+        @param retrierAddress Address of retrier to be added.
+     */
+    function adminAddRetrier(address retrierAddress) external {
+        require(!hasRole(RETRIER_ROLE, retrierAddress), "addr already is retrier role!");
+        require(AccessControl.getRoleMemberCount(RETRIER_ROLE) < 2, "retrier limit reached");
+        grantRole(RETRIER_ROLE, retrierAddress);
+    }
+
+    /**
+        @notice Removes retrier role for {retrierAddress}.
+        @notice Only callable by an address that currently has the admin role, which is
+                checked in revokeRole().
+        @param retrierAddress Address of retrier to be removed.
+     */
+    function adminRemoveRetrier(address retrierAddress) external {
+        require(hasRole(RETRIER_ROLE, retrierAddress), "addr doesn't have retrier role!");
+        revokeRole(RETRIER_ROLE, retrierAddress);
     }
 
     /**
@@ -450,6 +486,18 @@ contract Bridge is Pausable, AccessControl, SafeMath {
 
         emit ProposalEvent(domainID, depositNonce, ProposalStatus.Cancelled, dataHash);
     }
+
+    /**
+        @notice This method is used to trigger the process for retrying cancelled deposits.
+        @notice Only callable by address that has the right to call the specific function,
+        which have RETRIER_ROLE.
+        @param txHash Transaction hash which contains deposit that should be retried
+        @notice This is not applicable for failed executions on {GenericHandler}
+     */
+    function retry(string memory txHash) external onlyRetrier {
+        emit Retry(txHash);
+    }
+
 
     /**
         @notice Executes a deposit proposal that is considered passed using a specified handler contract.
