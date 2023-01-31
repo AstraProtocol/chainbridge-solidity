@@ -1,9 +1,9 @@
 {
-  "name": "@chainsafe/chainbridge-contracts",
-  "version": "2.1.4",
+  "name": "@astraprotocol/chainbridge-contracts",
+  "version": "2.1.5",
   "description": "",
   "main": "dist/index.js",
-  "repository": "https://github.com/ChainSafe/chainbridge-solidity.git",
+  "repository": "https://github.com/AstraProtocol/chainbridge-solidity.git",
   "files": [
     "dist",
     "build/contracts/Bridge.json",
@@ -23,7 +23,7 @@
     "generate-types:ethers": "npx typechain \"build/contracts/*\" --target=ethers-v5 --out-dir src/ethers",
     "test": "echo \\\\\\\"Error: no test specified\\\\\\\" && exit 1"
   },
-  "author": "Chainsafe Systems",
+  "author": "Astra Protocol",
   "license": "GPL-3.0-only",
   "devDependencies": {
     "@babel/core": "^7.17.4",
