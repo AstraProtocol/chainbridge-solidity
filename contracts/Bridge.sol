@@ -373,7 +373,7 @@ contract Bridge is Pausable, AccessControl, SafeMath {
 
     /**
         @notice Changes deposit fee.
-        @notice Only callable by admin.
+        @notice Only callable by admin or operator.
         @param newFee Value {_fee} will be updated to.
      */
     function adminChangeFee(uint256 newFee) external onlyAdminOrOperator {
