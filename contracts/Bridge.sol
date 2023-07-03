@@ -159,8 +159,10 @@ contract Bridge is Pausable, AccessControl, SafeMath {
         @param domainID ID of chain the Bridge contract exists on.
         @param initialRelayers Addresses that should be initially granted the relayer role.
         @param initialRelayerThreshold Number of votes needed for a deposit proposal to be considered passed.
+        @param initialOperators Addresses that should be initially granted the retrier role.
+        @param initialRetriers Addresses that should be initially granted the operator role.
      */
-    constructor (uint8 domainID, address[] memory initialRelayers, uint256 initialRelayerThreshold, uint256 fee, uint256 expiry) public {
+    constructor (uint8 domainID, address[] memory initialRelayers, uint256 initialRelayerThreshold, address[] memory initialOperators, address[] memory initialRetriers, uint256 fee, uint256 expiry) public {
         _domainID = domainID;
         _relayerThreshold = initialRelayerThreshold.toUint8();
         _fee = fee.toUint128();
@@ -170,6 +172,14 @@ contract Bridge is Pausable, AccessControl, SafeMath {
 
         for (uint256 i; i < initialRelayers.length; i++) {
             grantRole(RELAYER_ROLE, initialRelayers[i]);
+        }
+
+        for (uint256 i; i < initialRetriers.length; i++) {
+            grantRole(RETRIER_ROLE, initialRetriers[i]);
+        }
+
+        for (uint256 i; i < initialOperators.length; i++) {
+            grantRole(OPERATOR_ROLE, initialOperators[i]);
         }
     }
 

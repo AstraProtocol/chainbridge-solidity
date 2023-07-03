@@ -38,7 +38,7 @@ contract('Bridge - [admin]', async accounts => {
     };
 
     beforeEach(async () => {
-        BridgeInstance = await BridgeContract.new(domainID, initialRelayers, initialRelayerThreshold, 0, 100);
+        BridgeInstance = await BridgeContract.new(domainID, initialRelayers, initialRelayers, initialRelayerThreshold, [], [], 0, 100);
         ADMIN_ROLE = await BridgeInstance.DEFAULT_ADMIN_ROLE()
     });
 
