@@ -33,6 +33,10 @@ contract('Bridge - [admin]', async accounts => {
         return TruffleAssert.reverts(method(...params, {from: initialRelayers[1]}), "sender doesn't have admin role");
     };
 
+    const assertOnlyAdminOrOperator = (method, ...params) => {
+        return TruffleAssert.reverts(method(...params, {from: initialRelayers[1]}), "sender is not operator or admin");
+    };
+
     beforeEach(async () => {
         BridgeInstance = await BridgeContract.new(domainID, initialRelayers, initialRelayerThreshold, 0, 100);
         ADMIN_ROLE = await BridgeInstance.DEFAULT_ADMIN_ROLE()
@@ -183,8 +187,8 @@ contract('Bridge - [admin]', async accounts => {
         await TruffleAssert.reverts(BridgeInstance.adminChangeFee(0), "Current fee is equal to new fee");
     });
 
-    it('Should require admin role to set fee', async () => {
-        await assertOnlyAdmin(BridgeInstance.adminChangeFee, 0);
+    it('Should require admin or operator role to set fee', async () => {
+        await assertOnlyAdminOrOperator(BridgeInstance.adminChangeFee, 0);
     });
 
     // Withdraw

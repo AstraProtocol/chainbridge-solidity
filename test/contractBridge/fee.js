@@ -18,6 +18,7 @@ contract('Bridge - [fee]', async (accounts) => {
     const blankFunctionSig = '0x00000000';
     const blankFunctionDepositerOffset = 0;
     const relayer = accounts[0];
+    const operator = accounts[1];
 
     let BridgeInstance;
     let GenericHandlerInstance;
@@ -69,6 +70,32 @@ contract('Bridge - [fee]', async (accounts) => {
                 depositData,
                 {
                     value: Ethers.utils.parseEther("1.0")
+                }
+            )
+        )
+    });
+
+    it('operator can change fee', async () => {
+        // current fee is set to 0
+        assert.equal(await BridgeInstance._fee.call(), 0)
+        
+        const OPERATOR_ROLE = await BridgeInstance.OPERATOR_ROLE();
+        // Grant role for operator
+        await BridgeInstance.grantRole(OPERATOR_ROLE, operator, { from: relayer })
+
+        assert.equal(true, (await BridgeInstance.hasRole(OPERATOR_ROLE, operator)));
+        
+        // Change fee to 0.5 ether
+        await BridgeInstance.adminChangeFee(Ethers.utils.parseEther("0.5"), { from: operator })
+        assert.equal(web3.utils.fromWei((await BridgeInstance._fee.call()), "ether"), "0.5");
+
+        await TruffleAssert.passes(
+            BridgeInstance.deposit(
+                destinationDomainID,
+                resourceID,
+                depositData,
+                {
+                    value: Ethers.utils.parseEther("0.5")
                 }
             )
         )
