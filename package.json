@@ -1,6 +1,6 @@
 {
   "name": "@astraprotocol/chainbridge-contracts",
-  "version": "2.1.6",
+  "version": "2.1.7",
   "description": "",
   "main": "dist/index.js",
   "repository": "https://github.com/AstraProtocol/chainbridge-solidity.git",
