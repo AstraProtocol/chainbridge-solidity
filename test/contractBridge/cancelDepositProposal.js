@@ -40,7 +40,8 @@ contract('Bridge - [voteProposal with relayerThreshold == 3]', async (accounts) 
                 relayer2Address,
                 relayer3Address,
                 relayer4Address], 
-                relayerThreshold, 
+                relayerThreshold,
+                [],[],
                 0,
                 10,).then(instance => BridgeInstance = instance),
             ERC20MintableContract.new("token", "TOK").then(instance => DestinationERC20MintableInstance = instance)

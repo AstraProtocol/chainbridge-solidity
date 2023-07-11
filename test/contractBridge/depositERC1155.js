@@ -29,7 +29,7 @@ contract('Bridge - [deposit - ERC1155]', async (accounts) => {
     beforeEach(async () => {
         await Promise.all([
             ERC1155MintableContract.new("TOK").then(instance => OriginERC1155MintableInstance = instance),
-            BridgeInstance = await BridgeContract.new(originDomainID, [], relayerThreshold, 0, 100)
+            BridgeInstance = await BridgeContract.new(originDomainID, [], relayerThreshold, [], [], 0, 100)
         ]);
         
         
