@@ -99,11 +99,6 @@ contract Bridge is Pausable, AccessControl, SafeMath {
         _;
     }
 
-    modifier onlyOperator() {
-        _onlyOperator();
-        _;
-    }
-
     modifier onlyAdminOrOperator() {
         _onlyAdminOrOperator();
         _;
@@ -125,10 +120,6 @@ contract Bridge is Pausable, AccessControl, SafeMath {
 
     function _onlyRetrier() private view {
         require(hasRole(RETRIER_ROLE, _msgSender()), "sender doesn't have retrier role");
-    }
-
-    function _onlyOperator() private view {
-        require(hasRole(OPERATOR_ROLE, _msgSender()), "sender doesn't have operator role");
     }
 
     function _onlyAdminOrOperator() private view {
